@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Search from "./Search";
 import Form from "./Form";
+import axios from "axios";
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", num: "040-1234567" },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNum, setNewNum] = useState("");
   const [filter, setFIlter] = useState("");
 
+  const hook = () => {
+    console.log("effect");
+    axios.get("http://localhost:3000/persons").then((response) => {
+      console.log("promise fulfilled");
+      setPersons(response.data);
+    });
+  };
+
+  useEffect(hook, []);
   const handleFilter = (event) => {
     console.log(event.target.value);
     setFIlter(event.target.value);
@@ -28,7 +36,7 @@ const App = () => {
     event.preventDefault();
 
     const isDuplicate = persons.some(
-      (person) => person.name === newName || person.num === newNum
+      (person) => person.name === newName || person.number === newNum
     );
 
     if (isDuplicate) {
@@ -37,8 +45,9 @@ const App = () => {
       setNewNum("");
     } else {
       const nameObject = {
+        id: persons.length + 1,
         name: newName,
-        num: newNum,
+        number: newNum,
       };
 
       if (newName) {
@@ -68,9 +77,9 @@ const App = () => {
 
       <h2>Numbers</h2>
       {persons.map((person) => (
-        <h3 key={person.name}>
+        <h3 key={person.id}>
           {person.name.toLowerCase().startsWith(filter.toLowerCase())
-            ? `${person.name} : ${person.num}`
+            ? `${person.name} : ${person.number}`
             : ""}
         </h3>
       ))}
